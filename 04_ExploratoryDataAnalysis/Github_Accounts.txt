@@ -1,0 +1,7 @@
+Week 1
+
+Using SQL
+https://github.com/mdamron/ExData_Plotting1/blob/master/Plot4.R
+
+Cleaning Data
+https://github.com/salok13/datasciencecoursera/tree/master/03.%20Getting%20and%20Cleaning%20Data
