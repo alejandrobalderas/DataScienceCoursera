@@ -18,6 +18,11 @@ Data set is part of the Machine Learning Repository of UCI
 	*STANDING
 	*LAYING
 	
+* Item 1
+* Item 2
+  * Sub Item 1
+  * Sub Item 2
+	
 Measurements
 * tBodyAcc-mean-X
 * tBodyAcc-mean-Y
