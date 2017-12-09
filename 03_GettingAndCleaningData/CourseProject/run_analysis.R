@@ -1,7 +1,7 @@
 library(data.table)
 library(dplyr)
 
-setwd("~/Coursera/DataScience/DataScienceCoursera/03_GettingAndCleaningData")
+setwd("~/Coursera/DataScience/DataScienceCoursera/03_GettingAndCleaningData/CourseProject/")
 
 fileName <- "W4_CourseProject.zip"
 fileUrl <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
