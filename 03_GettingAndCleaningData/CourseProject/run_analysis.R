@@ -9,14 +9,11 @@ if(!file.exists(fileName)){
     download.file(fileUrl,fileName) 
 }
 
-#Change names
-
-
 # Read Feature Names + Activities
 features <- fread("./UCI HAR Dataset/features.txt",col.names = c("-","featureNames"))
 features <- features$featureNames
 featureIndex <- grep("mean\\(\\)|std\\(\\)",features)
-featureNames <- features[featureIndex]
+featureNames <- gsub("[()]","",features[featureIndex])
 activities <- fread("./UCI HAR Dataset/activity_labels.txt",col.names = c("Index","Activity"))
 
 
