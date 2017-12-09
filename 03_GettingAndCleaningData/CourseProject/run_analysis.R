@@ -39,3 +39,6 @@ dataset[["SubjectIndex"]] <- as.factor(dataset[,SubjectIndex])
 # Compute the second set of tidy data with the mean 
 dataset_mean <- aggregate(.~Activity + SubjectIndex, dataset,mean)
 
+# Save Dataset
+write.table(dataset_mean,"tidy.txt", row.names = FALSE)
+fwrite(dataset_mean,"tidyData2.csv")
