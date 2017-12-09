@@ -10,12 +10,12 @@ Data set is part of the Machine Learning Repository of UCI
 
 * SubjectIndex - Unique ID for each Subject in the test
 * Activity
-  *WALKING
-  *WALKING_UPSTAIRS
-  *WALKING_DOWNSTAIRS
-  *SITTING
-  *STANDING
-  *LAYING
+  * WALKING
+  * WALKING_UPSTAIRS
+  * WALKING_DOWNSTAIRS
+  * SITTING
+  * STANDING
+  * LAYING
 	
 Measurements
 * tBodyAcc-mean-X
