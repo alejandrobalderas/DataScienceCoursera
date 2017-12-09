@@ -31,9 +31,11 @@ train_subject <- fread("./UCI HAR Dataset/train/subject_train.txt",col.names = c
 train_activity <- fread("./UCI HAR Dataset/train/y_train.txt",col.names = c("Activity"))
 train <- cbind(train_subject,train_activity,train)
 
+# Merge the data
 dataset <- rbind(train,test)
 dataset[["Activity"]] <- factor(dataset[, Activity], levels = activities[["Index"]], labels = activities[["Activity"]])
 dataset[["SubjectIndex"]] <- as.factor(dataset[,SubjectIndex])
 
+# Compute the second set of tidy data with the mean 
 dataset_mean <- aggregate(.~Activity + SubjectIndex, dataset,mean)
 
