@@ -108,3 +108,17 @@ g + geom_col() + facet_grid(.~variable)  +
     labs(x = "Year",y = "Mean Value PM2.5 [tons]", title = "Motor Vehicle Comparison between Baltimore and LA")+
      scale_x_discrete(limits = unique(dataMelt$year))
 dev.off()
+
+
+
+## Interesting plots from the quiz review
+
+library(dplyr) 
+SMVS <- NEI[(NEI$fips=="24510") & (NEI$type=="ON-ROAD"),] 
+SMVS_Y <- summarise(group_by(SMVS, year), Emissions=sum(Emissions)) 
+
+##plotting data usin ggplot library(ggplot2) 
+ggplot(dataMelt, aes(x= factor(year),y=Emissions, fill = year))+ 
+    geom_bar(stat = "identity", position = "dodge")+ 
+    xlab("year")+ 
+    ggtitle("Baltimore Motor Vehicle Emissions")
