@@ -1,0 +1,102 @@
+---
+title: "Practical Machine Learning - Course Project"
+author: "Alejandro"
+date: "13 Februar 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
+```
+
+## Introduction
+
+This document is the final report of the Peer Assessment project from Coursera's course Practical Machine Learning, as part of the Specialization in Data Science.
+
+One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants.
+
+The goal of this project is to predict the manner in which they did the exercise, this is the "classe" variable, using any of the other variables in the training set. This report describes how to build the model, how to use cross validation, and an explanation of what measures where necessary for this analysis.
+
+For this project the caret package will be used to train a Random Forest model
+```{r}
+library(caret)
+```
+
+The data can be obtained from the following links
+
+- Training: https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv
+- Test: https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv
+
+The data will be loaded and then separated into a training and testing set. The training set will be used to train the model and the testing set will be used as cross validation to test the goodness of the model.
+```{r}
+set.seed(323)
+finalTest <- read.csv("./Data/pml-testing.csv")
+training <- read.csv("./Data/pml-training.csv")
+
+inTrain <- createDataPartition(training$classe,
+                               p = 0.8, list = F)
+testing <- training[-inTrain,]
+training <- training[inTrain,]
+
+```
+## Data Cleansing
+
+The data set is quite big and many of the variables contain NAs so as a simplification step all vectors which contain a single NA will be taken out of the analysis. For this the function any.is.na will return TRUE if there is an NA and FALSE if there is not. The naIndex variables will store the vectors which hold an NA and this will be taken out of our data set. The first 7 vectors (excluding 2) does not contain any information needed for the model so they wont be taken into consideration.
+
+The following code executes the described procedure
+```{r}
+any.is.na <- function(vec){any(is.na(vec))}
+naIndex.training <- sapply(training,any.is.na)
+naIndex.finalTest <- sapply(finalTest,any.is.na)
+naIndex <- !(naIndex.training | naIndex.finalTest)
+
+training <- training[,naIndex]
+testing <- testing[,naIndex]
+eliminateIndex <- -c(1,3,4,5,6,7)
+training <- training[,eliminateIndex]
+testing <- testing[,eliminateIndex]
+
+training$classe <- as.factor(training$classe)
+testing$classe <- as.factor(testing$classe)
+
+```
+## Training the Model
+
+Due to the size of the data set the model can take a long time to train. To help speed the process parallel computing will be used to decrease the training time. Using the tictoc package one can measure the time it takes for the model to be trained.
+```{r cache = T}
+library(parallel)
+library(doParallel)
+library(tictoc)
+
+cluster <- makeCluster(detectCores() - 1) # convention to leave 1 core for OS
+registerDoParallel(cluster)
+fitControl <- trainControl(method = "cv",
+                           number = 5,
+                           allowParallel = TRUE)
+
+smallIndex <- sample(1:dim(training)[1],8000,replace = T)
+tic()
+# Model
+modelFit <- train(classe~., data = training[smallIndex,], method = "rf", trControl = fitControl)
+toc()
+
+stopCluster(cluster)
+registerDoSEQ()
+
+```
+
+## Model Accuracy and Prediction
+
+Using the test set we can perform cross validation to test the accuracy of the model on a data set that was not use to train the model and whos result wont be bias by the training.
+
+```{r}
+cm <- confusionMatrix(testing$classe,predict(modelFit,testing))
+cm$overall[1]
+```
+
+With a high accuracy of the Model the predictions for the new data set where the classe is not known will be made. The results will be checked during an automated test on the coursera web page.
+
+```{r}
+pred <- predict(modelFit, finalTest)
+pred
+```

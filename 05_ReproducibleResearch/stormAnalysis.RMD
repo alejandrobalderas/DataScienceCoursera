@@ -1,0 +1,158 @@
+---
+title: "Analysis of the NOAA Storm Database to answer basic question about sever weather events"
+author: "Alejandro Balderas"
+date: "29 Dezember 2017"
+output: 
+    html_document:
+        keep_md: true
+---
+
+```{r setoptions, echo=FALSE, warning = FALSE, message=FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+#options(scipen=999)
+```
+
+## Synopsis
+
+This report will answer two questions about weather events using the NOAA Storm Database
+
+**Questions**:
+
+1. Which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health across the United States?
+2. Which types of events have the greatest economic consequences across the United States? 
+
+### Introduction
+
+Storms and other severe weather events can cause both public health and economic problems for communities and municipalities. Many severe events can result in fatalities, injuries, and property damage, and preventing such outcomes to the extent possible is a key concern.
+
+This project involves exploring the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database. This database tracks characteristics of major storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage.
+
+
+## Data Processing
+
+Load package dependencies and data
+```{r loadPackage}
+library(knitr)
+library(ggplot2)
+library(dplyr)
+library(reshape2)
+
+```
+
+```{r loadData, cache=TRUE}
+
+db_url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"   
+db_zip <- "StormData.csv.bz2"
+if (!file.exists(db_zip)) {    
+    download.file(db_url, db_zip, method="curl")    
+}  
+
+df <- read.csv("StormData.csv.bz2")
+
+```
+
+Taking a look at all the variables wee see that many are not relevant por the questions we are trying to answer and so we can subset the dataframe by just including the variables that we are interested in saved in the vector "cols".
+
+```{r dataSummary}
+str(df)
+cols <- c("EVTYPE", "FATALITIES", "INJURIES", "CROPDMG", "CROPDMGEXP", "PROPDMG", "PROPDMGEXP")
+dat <- df[,cols]
+```
+
+The seven variables used for the analysis are the following:
+
+- EVTYPE: Event type
+- FATALITIES: number of fatalities from the event
+- INJURIES: number of injuries from the event
+- CROPDMG: number of crop damage from event
+- CROPDMGEXP: crop damage multiplier from the event
+- PROPDMG: number of property damage from event
+- PROPDMGEXP: property damage multiplier from the event
+
+In the following part the variables for PROPDMGEXP and CROPDMGEXP will be transformed into values that can be worked with. The explanation on this values can be taken from the discussion forums in coursera. The explanation of this values is out of the purpose of this work. 
+
+```{r}
+
+# Show level of Expenses
+levels(dat$PROPDMGEXP)
+# Data Cleansing
+# Digits
+dat$CROPDMGEXP <- gsub("[[:digit:]]", "10", dat$CROPDMGEXP)    
+dat$PROPDMGEXP <- gsub("[[:digit:]]", "10", dat$PROPDMGEXP)
+## +    
+dat$CROPDMGEXP <- gsub("\\+", "1", dat$CROPDMGEXP)    
+dat$PROPDMGEXP <- gsub("\\+", "1", dat$PROPDMGEXP)    
+## -,?  
+dat$CROPDMGEXP <- gsub("[-\\?]", "0", dat$CROPDMGEXP)    
+dat$PROPDMGEXP <- gsub("[-\\?]", "0", dat$PROPDMGEXP)    
+# Change the levels for the H, K, M, B
+dat$PROPDMGEXP <- gsub("[Hh]","100",dat$PROPDMGEXP)
+dat$PROPDMGEXP <- gsub("[Kk]","1000",dat$PROPDMGEXP)
+dat$PROPDMGEXP <- gsub("[Mm]","1000000",dat$PROPDMGEXP)
+dat$PROPDMGEXP <- gsub("[Bb]","1000000000",dat$PROPDMGEXP)  
+dat$CROPDMGEXP <- gsub("[Hh]","100",dat$CROPDMGEXP)
+dat$CROPDMGEXP <- gsub("[Kk]","1000",dat$CROPDMGEXP)
+dat$CROPDMGEXP <- gsub("[Mm]","1000000",dat$CROPDMGEXP)
+dat$CROPDMGEXP <- gsub("[Bb]","1000000000",dat$CROPDMGEXP) 
+# Empty values
+dat$PROPDMGEXP[dat$PROPDMGEXP == ""] <- 0
+dat$CROPDMGEXP[dat$CROPDMGEXP == ""] <- 0
+# Parse values as numeric
+dat$PROPDMGEXP <- as.numeric(dat$PROPDMGEXP)
+dat$CROPDMGEXP <- as.numeric(dat$CROPDMGEXP)
+# Calculate the total damage
+dat <- mutate(dat,PROPEXPTOTAL = PROPDMGEXP*PROPDMG)
+dat <- mutate(dat,CROPEXPTOTAL = CROPDMGEXP*CROPDMG)
+
+```
+
+## Results
+
+
+### Which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health across the United States?
+
+```{r plotEventHistogram}
+
+fatalities_and_injuries_per_event <- aggregate(cbind(FATALITIES,INJURIES)~EVTYPE,dat,sum,na.rm=TRUE)
+tmpdata <- arrange(fatalities_and_injuries_per_event, desc(FATALITIES + INJURIES))[1:10,]
+tmpdata <- melt(tmpdata,id.vars = "EVTYPE")
+g<- ggplot(tmpdata, aes(x = reorder(EVTYPE,-value), y = value, fill = variable))
+g + geom_bar(stat="identity") + labs(title = "Fatalities + Injuries for the top 10 most harmful events",
+                                     x = "Event Type", y="Number Of People Involved")+
+    theme(axis.text.x = element_text(angle = 40, hjust = 1))
+
+```
+
+With help of the past visualization it is clear that the tornados are the most harmful type of event in the USA both in number of fatalities and injuries. The table below shows a summary for the top ten events with a number of fatalities, injuries and the total number of people affected by the event.
+
+```{r eventTable}
+
+table_data <- mutate(fatalities_and_injuries_per_event, TOTAL = FATALITIES + INJURIES)
+table_data <- arrange(table_data, desc(FATALITIES + INJURIES))[1:10,]
+table_data <- format(table_data, big.mark = ",", decimial.mark = ".")
+
+kable(table_data, format="html", col.names=c("Event Type", "Fatalities", "Injuries", "Total"), 
+      align=c("l", "r", "r", "r"))   
+```
+
+### Which types of events have the greatest economic consequences across the United States? 
+
+The same logic as the question before will be applied to see which type of event causes the most damages in the country. For this the expenses that will be used. This variables were calculated in the _Data Preprocessing_ section.
+
+```{r}
+
+expenses_per_event <- aggregate(cbind(PROPEXPTOTAL, CROPEXPTOTAL) ~ EVTYPE, dat, sum)
+names(expenses_per_event) <- c("EVTYPE","Property.Damage","Crop.Damage")
+expenses_per_event <- arrange(expenses_per_event, desc(Property.Damage, Crop.Damage))[1:15,]
+
+tmpdata <- melt(expenses_per_event, id.vars = "EVTYPE")
+
+g <- ggplot(tmpdata, aes(x=reorder(EVTYPE,-value),y=value,group = "variable",fill = variable))
+g + geom_bar(stat = "identity") + theme(axis.text.x = element_text(angle = 40, hjust = 1)) + 
+    labs(title = "Amount of Damage caused by each Event", x = "Event","Damage") + 
+    scale_fill_discrete(name = "",labels = c("Property Damage","Crop Damage"))
+
+```
+
+

@@ -1,0 +1,71 @@
+---
+title: "Statistical Inference Course Project Part 2"
+author: "Alejandro"
+date: "14 Januar 2018"
+output: pdf_document
+---
+
+```{r setoptions, echo=FALSE, warning = FALSE, message=FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+options(scipen=999, comment = NA)
+```
+
+
+## Overview
+In this Peer-Graded-Assignment the central limit theorem (CLT) and the ToothGrowth data will be analyzed. For the first part we will rely in the simulation power of R to empirically derive the CLT. In the second part the ToothGrowth data in the R datasets package will be analyzed using techniques learned in class such as confidence intervals and/or hypothesis tests.
+
+```{r loadPackage, echo=FALSE}
+library(knitr)
+library(ggplot2)
+library(dplyr)
+library(reshape2)
+
+```
+
+## Part 2 
+
+In this second part we will do statistical inference on the ToothGrowth data set from R. First we will take a look at the data set.
+```{r}
+
+data("ToothGrowth")
+str(ToothGrowth)
+
+```
+
+We see that there is a total of 60 observations with 3 variables: len, supp, and dose. Variables len and dose are numerical variables while supp gibe us information about what supplement was use during the test being a factor variable with 2 levels. Using the summary function in R we can analyze the numeric variables and see their spread.
+
+```{r}
+summary(ToothGrowth)
+```
+
+We can now see a boxplot for both dose to give us an better picture of the data. Furthermore we can see the effect that the dose has in the length. 
+
+```{r, fig.height=2, fig.width=3}
+aggregate(len ~ dose, ToothGrowth, mean)
+g <- ggplot(data = ToothGrowth, aes(x = supp, y = len, fill = supp))
+g + geom_boxplot()
+```
+
+We see that the dose has a clear effect in the len. From the boxplot we can see that the supp changes the mean and the spread of the data. By using the t.test function in R we can compute the effect that both supplements have in the tooth growth. 
+
+```{r}
+t.output <- t.test(len ~ supp , data = ToothGrowth, paired = FALSE, var.equal = FALSE)
+t.output$p.value
+```
+With a p value of 0.06 we cannot reject the null hypothesis with a confidence of 95% that the different supplements have an effect in the tooth growth.
+
+```{r}
+sub1 <- ToothGrowth[ToothGrowth$dose == 0.5 | ToothGrowth$dose == 1,]
+sub2 <- ToothGrowth[ToothGrowth$dose == 1 | ToothGrowth$dose == 2,]
+
+res1 <- t.test(len~dose, data = sub1, paired = FALSE, var.equal = FALSE)
+res2 <- t.test(len~dose, data = sub2, paired = FALSE, var.equal = FALSE)
+
+
+```
+
+By looking at the pvalues: `r res1$p.value` and `r res2$p.value`, we can reject the null hypothesis that the dose does not have an effect in the length of the tooth growth with a 95% confidence. 
+
+### Conclussion
+We can conclude that different doses lead to an increase in tooth growth, but we cannot say that different supplements lead to a difference in tooth growth.

@@ -1,0 +1,102 @@
+---
+title: "Regression Models - Peer Graded Assignment"
+author: "Alejandro"
+date: "27 Januar 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+options(scipen=999, comment = NA)
+```
+
+
+## Introduction 
+
+In this report for Motor Trend, a magazine about the automobile industry we will be looking at a collection of car data and analyze their fuel consumption as miles per gallon (MPG). Here we will cover two main points
+
+- Is an automatic or manual transmission better for MPG?
+- Quantify the MPG difference between automatic and manual transmissions
+
+## Getting started
+
+Load the package dependencies
+```{r, echo=FALSE}
+require(ggplot2)
+require(corrplot)
+```
+
+The data set will be taken from the mtcars dataset in R.
+```{r}
+data("mtcars")
+head(mtcars)
+```
+This dataset has 32 observations and 11 variables. These variables are:
+
+- mpg	 Miles/(US) gallon
+- cyl	 Number of cylinders
+- disp	 Displacement (cu.in.)
+- hp	 Gross horsepower
+- drat	 Rear axle ratio
+- wt	 Weight (1000 lbs)
+- qsec	 1/4 mile time
+- vs	 V/S
+- am	 Transmission (0 = automatic, 1 = manual)
+- gear	 Number of forward gears
+- carb	 Number of carburetors
+
+### Is an automatic or manual transmission better for MPG?
+
+First we can do exploratory analysis on how the transmission affects the MPG.
+```{r,echo=FALSE, out.width='.49\\linewidth', fig.width=6, fig.height=3,fig.show='hold',fig.align='center'}
+mydata <- mtcars[,c(1,2,3,4,6,9)]
+
+par(mfrow = c(1,2))
+
+ggplot(mydata, aes(x = factor(am), y = mpg, fill = factor(am))) + 
+    geom_boxplot() + 
+    labs(title="Difference between MPG for Different Transmissions", x="Transmission [0: automatic / 1: manual]")
+
+cormat <- round(cor(mydata),2)
+res1 <- cor.mtest(mydata, conf.level = 0.95)
+corrplot(cormat, type = "upper", method = "color", p.mat = res1$p, sig.level = .05, insig = "blank", order= "hclus",mar=c(2,0,0,0))
+title(x="Correlation Heatmap")
+```
+
+In the figure on the left we see a boxplot comparing MPG for the two types of transmission. It is clear from the picture that manual transmissions have a better MPG as automatic. By doing a t.test we can reject the hypothesis that the transmission had no effect in mpg by having a p value of `r round(t.test(mpg ~ am, data = mtcars, paired = FALSE, var.equal = FALSE)$p.value,3)`. By looking at the figure on the right we see that all variables with the exception of "am" have a negative correlation with the MPG. 
+
+### Quantify the MPG difference between automatic and manual transmissions
+
+Now we can fit a model to further analyze the effect of the transmission in the MPG. First we will start by having mpg as the output and just the transmission as the variable.
+```{r}
+mdl <- lm(mpg~factor(am), mydata)
+summary(mdl)$coef[,1]
+```
+We see the in intercept being `r round(summary(mdl)$coef[,1][1],2)` and the coefficient `r round(summary(mdl)$coef[,1][2],2)`. This means that that without including any other variables to our model we can expect an increase of **`r round(summary(mdl)$coef[,1][2],2)`** mpg when driving manual instead of automatic.
+
+By adding more variables to our model the effect of course changes by explaining more of the variability of the model through more parameters. As an example we will fit again a linear model but this time adding two more variables: wt and cyl.
+```{r}
+mdl2 <- lm(mpg~factor(am) + wt + cyl,mydata)
+summary(mdl2)$coef[,1]
+```
+We see that our previous findings still hold. Driving manual has a positive impact in the mpg however we see that the effect dramastically decreased to `r round(summary(mdl2)$coef[,1][2],2)` by adding more regressors to our model. The effect of the transmission on the MPG will change depending in which variables we choose to explain t he variability of our modell. After doing an analiysis of variance (ANOVA) and looking at the pvalues we see that the inclussion of these variables is indeed statistical significant for the model.
+```{r, echo = FALSE}
+anova(mdl,mdl2)
+```
+This is why it is important on having technical expertise to know which parameters to include in the model in order to choose the right model to fit the data. 
+
+
+## Apendix and Extras
+
+```{r}
+par(mfrow = c(2,2))
+plot(mdl)
+```
+
+Using the step function we can do model selection and find the best parameter combination to explain the variability of the model.
+```{r}
+mdl_best <- step(lm(mpg~.,data = mtcars), trace = 0)
+summary(mdl_best)
+```
+We see that the chosen variables for the model are actually wt, qsec and am. Most important is the R-squared for this model went up to `r summary(mdl_best)$r.squared` instead of `r summary(mdl)$r.squared` from the mdl with just the transmission as a parameter.

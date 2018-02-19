@@ -1,0 +1,82 @@
+---
+title: "Statistical Inference Course Project Part 1"
+author: "Alejandro"
+date: "14 Januar 2018"
+output: pdf_document
+---
+
+```{r setoptions, echo=FALSE, warning = FALSE, message=FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+options(scipen=999, comment = NA)
+```
+
+
+## Overview
+In this Peer-Graded-Assignment the central limit theorem (CLT) and the ToothGrowth data will be analyzed. For the first part we will rely in the simulation power of R to empirically derive the CLT. In the second part the ToothGrowth data in the R datasets package will be analyzed using techniques learned in class such as confidence intervals and/or hypothesis tests.
+
+```{r loadPackage, echo=FALSE}
+library(knitr)
+library(ggplot2)
+library(dplyr)
+library(reshape2)
+
+```
+
+## Part 1: Simulation Exercise
+
+We will use the exponential distribution and compare the mean of different simulations with the CLT. In the following graph we can see the exponential distribution plotted for different values of lambda. 
+
+```{r setPlotExpFunction, echo=FALSE}
+x <- seq(0,20,length = 1000)
+lambda.01 <- dexp(x,rate = 0.1)
+lambda.02 <- dexp(x, rate = 0.2)
+lambda.03 <- dexp(x, rate=0.5)
+dat <- data.frame(x,lambda.01,lambda.02,lambda.03)
+dat <- melt(dat, id.vars = "x")
+```
+
+```{r plotExpFunction, echo = FALSE, fig.height=2}
+
+g <- ggplot(dat, aes(x = x, y = value,color = variable))
+g <- g + geom_line(size = 2)
+g
+```
+### CTL
+
+To analyze the CTL we will do a set generate 40 random numbers from the exponential distribution and compute the mean and standard deviation for this 40 random numbers. This will be done a total of 1000 times.
+
+```{r simulateData}
+
+lambda <- 0.2
+n <- 40
+sims.mean <- NULL
+sims.sd <- NULL
+for(i in 1:1000){
+    sims <- rexp(n,lambda)
+    sims.mean <- c(sims.mean, mean(sims))
+    sims.sd <- c(sims.sd , sd(sims))
+}
+```
+
+In theory the mean and standard deviation for the exponential function should be 1/lambda. With a lambda of 0.2 the mean and standard should be 5 which is really close to what we obtained from the simulations of mean:`r round(mean(sims.mean),2)` and standard deviation: `r round(mean(sims.sd),2)`
+
+The theoretical standard deviation is defines as (1/lambda)/sqrt(n) which for a lambda of 0.2 is equal to ``r round((1/lambda)/sqrt(n),4)` and the practical standard deviation is
+
+```{r}
+sd(sims.mean)
+```
+
+In the following graph we see the the result of the simulations as a histogram as well as the normal distribution. It isnot a perfect fit but with a higher number of simulations the mean of the random numbers will look more and more like the normal distribution.
+
+```{r histogram, fig.height=3}
+
+sims.mean <- (sims.mean - mean(sims.mean))/sd(sims.mean)
+x <- seq(-4,4, length = 100)
+hx <- dnorm(x)
+g <- ggplot(data.frame(x = sims.mean), aes(x = x))
+g + geom_histogram(aes(y = ..density.. ,fill = I("steelblue")), binwidth = density(sims.mean)$bw) + 
+    geom_line(data = data.frame(x=x,hx=hx),aes(x=x,y=hx), col = "red", size = 1) + 
+    labs(x = "Normalized Mean Simulations", y = "Probability", title ="Central Limit Theorem")
+
+```

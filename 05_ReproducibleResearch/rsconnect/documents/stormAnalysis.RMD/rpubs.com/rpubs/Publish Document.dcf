@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/345287/7cf7743a0b7f40e3a48a998f2d2d922a
+bundleId: https://api.rpubs.com/api/v1/document/345287/7cf7743a0b7f40e3a48a998f2d2d922a
+url: http://rpubs.com/alejandrobalderas/345287
+when: 1514642673.91326
