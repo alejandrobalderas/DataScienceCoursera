@@ -62,7 +62,8 @@ testing$classe <- as.factor(testing$classe)
 ```
 ## Training the Model
 
-Due to the size of the data set the model can take a long time to train. To help speed the process parallel computing will be used to decrease the training time. Using the tictoc package one can measure the time it takes for the model to be trained.
+Due to the size of the data set the model can take a long time to train. To help speed the process parallel computing will be used to decrease the training time. Using the tictoc package one can measure the time it takes for the model to be trained. In order to speed the process a little further just 8000 samples taken at random wil be used to train the model since it gives great accuracy to pass the test while reducing the computing time
+
 ```{r cache = T}
 library(parallel)
 library(doParallel)

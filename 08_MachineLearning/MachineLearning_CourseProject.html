@@ -167,7 +167,7 @@ testing$classe &lt;- as.factor(testing$classe)</code></pre>
 </div>
 <div id="training-the-model" class="section level2">
 <h2>Training the Model</h2>
-<p>Due to the size of the data set the model can take a long time to train. To help speed the process parallel computing will be used to decrease the training time. Using the tictoc package one can measure the time it takes for the model to be trained.</p>
+<p>Due to the size of the data set the model can take a long time to train. To help speed the process parallel computing will be used to decrease the training time. Using the tictoc package one can measure the time it takes for the model to be trained. In order to speed the process a little further just 8000 samples taken at random wil be used to train the model since it gives great accuracy to pass the test while reducing the computing time</p>
 <pre class="r"><code>library(parallel)
 library(doParallel)
 library(tictoc)
@@ -192,8 +192,8 @@ registerDoSEQ()</code></pre>
 <p>Using the test set we can perform cross validation to test the accuracy of the model on a data set that was not use to train the model and whos result wont be bias by the training.</p>
 <pre class="r"><code>cm &lt;- confusionMatrix(testing$classe,predict(modelFit,testing))
 cm$overall[1]</code></pre>
-<pre><code>## Accuracy 
-## 0.980882</code></pre>
+<pre><code>##  Accuracy 
+## 0.9806271</code></pre>
 <p>With a high accuracy of the Model the predictions for the new data set where the classe is not known will be made. The results will be checked during an automated test on the coursera web page.</p>
 <pre class="r"><code>pred &lt;- predict(modelFit, finalTest)
 pred</code></pre>
