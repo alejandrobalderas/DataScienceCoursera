@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/365101/fa481cd7ebd044ec83605295d5624892
+bundleId: https://api.rpubs.com/api/v1/document/365101/fa481cd7ebd044ec83605295d5624892
+url: http://rpubs.com/alejandrobalderas/365101/edit
+when: 1519836724.79276

@@ -1,0 +1,84 @@
+---
+title: "Documentation"
+output:
+  html_document: 
+    theme: cerulean 
+    highlight: pygments
+    css: lab.css
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+library(leaflet)
+library(ggmap)
+```
+
+## Introduction
+
+This project was done as part of the Data Science Specialization from the Johns Hopkins University in Coursera. This course, Developing Data Products is the ninth and last course of the specialization before starting with the Capstone Project to finish and wrap everything up. 
+
+The goal of this course was to use the applied techniques learned in R through out the specialization and combine them with the powerful tools that R has at its disposal to write high quality applications. The topics covered included Shiny, Leaflet, Plotly and many others.
+
+As the final project of this course we needed to build our own application using shiny.
+
+<div id="instructions">
+**Shiny Application Instructions**
+
+1. Write a shiny application with associated supporting documentation. The documentation should be thought of as whatever a user will need to get started using your application.
+2. Deploy the application on RStudio's shiny server.
+3. Share the application link by pasting it into the provided text box.
+4. Share your server.R and ui.R code on github
+
+The Application must include the following:
+
+1. Some form of input(widget: textbox, radio button, checkbox, ...)
+2. Some operation on the ui input in server.R
+3. Some reactive output displayed as a result of server calculations.
+4. You must also include enough documentation so that a novice user could use your application.
+5. The documentation should be at the Shiny website itself. Do not post to an external link.
+</div>
+
+In the following section you will get all the information you need to get you started using this app.
+
+## The Application
+
+The application searches for the coordinates of a given city or country and then uses Leaflet to plot it in a map. 
+
+In the left side panel you see an input text option where you can enter the desired place to search. The standard zoom option will dictate the zoom that is applied to the map the first time it is plotted. The Submit button tells the application when it should start with the computation.
+
+<div id="boxedtext">
+Please note that the zoom can be changed manually as well in the map window.
+</div>
+
+In the main panel we see displayed in text the place we are searching for (the entry in the side panel) and underneath another text that displays the result of our query for the longitude and latitutde coordinates for the place.
+
+Using Leaflet we see the place with an open street map. This map is highly interactive giving the user full flexibility. Here you see an example of how the map is displayed
+
+```{r}
+testCoords <- data.frame(lon = 11.571350, lat =48.193843)
+
+testCoords %>%
+    leaflet() %>%
+    addTiles() %>%
+    addMarkers(popup = "BMW FIZ")%>%
+    setView(testCoords$lon, testCoords$lat, zoom = 5)
+```
+
+
+This app was writen in RStudio and uses the following librarys:
+
+- Shiny: Creates the interface
+- Leaflet: Creates the map
+- ggmap: Searches for the coordinates online
+
+
+<div id="boxedtext">
+**Important: ** This application needs an internet connection to work since it looks online for the coordinates of the 
+</div>
+
+
+## Additional information
+
+If you have any doubts or comments please feel free to contact me.
+

@@ -1,6 +1,6 @@
 ---
 title: "Practical Machine Learning - Course Project"
-author: "Alejandro Balderas"
+author: "Alejandro"
 date: "13 Februar 2018"
 output: html_document
 ---
@@ -99,5 +99,5 @@ With a high accuracy of the Model the predictions for the new data set where the
 
 ```{r}
 pred <- predict(modelFit, finalTest)
-pred
 ```
+Pred shows the correct answers for the test but are not shown here for honor code purposes

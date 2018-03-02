@@ -1,0 +1,12 @@
+name: shinyLeafletMap
+title: shinyLeafletMap
+username:
+account: alejandrobalderas
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 289308
+bundleId: 1246435
+url: https://alejandrobalderas.shinyapps.io/shinyLeafletMap/
+when: 1519887063.25547
+asMultiple: FALSE
+asStatic: FALSE
