@@ -1,12 +1,5 @@
-#
-# This is the server logic of a Shiny web application. You can run the 
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
 
+# Load the following libraries
 library(shiny)
 library(leaflet)
 library(ggmap)
@@ -14,13 +7,17 @@ library(ggmap)
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
 
-    point2Locate <- reactive(input$country2Search)
-    coords <- reactive(geocode(point2Locate(), source = "dsk"))
-    output$text <- renderText(point2Locate())
+    # Get the information of countr2Search and store it in place2Locate
+    place2Locate <- reactive(input$country2Search)
+    # Uses geocode and the dsk database to search for the coordinates
+    coords <- reactive(geocode(place2Locate(), source = "dsk"))
+    output$text <- renderText(place2Locate())
     lon <- reactive(coords()$lon)
     lat <- reactive(coords()$lat)
+    # Store the longitude and latitude for display
     coords_text <- reactive({paste("Lon: ",lon(), " Lat: ", lat())})
     output$coords <- renderText(coords_text())
+    # Create the leaflet app
     output$mymap <- renderLeaflet({
         leaflet()%>%
             addTiles()%>%
