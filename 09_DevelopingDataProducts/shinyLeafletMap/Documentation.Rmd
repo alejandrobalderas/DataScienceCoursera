@@ -55,15 +55,7 @@ In the main panel we see displayed in text the place we are searching for (the e
 
 Using Leaflet we see the place with an open street map. This map is highly interactive giving the user full flexibility. Here you see an example of how the map is displayed
 
-```{r}
-testCoords <- data.frame(lon = 11.571350, lat =48.193843)
-
-testCoords %>%
-    leaflet() %>%
-    addTiles() %>%
-    addMarkers(popup = "BMW FIZ")%>%
-    setView(testCoords$lon, testCoords$lat, zoom = 5)
-```
+![Shiny App](appPicture.PNG)
 
 
 This app was writen in RStudio and uses the following librarys:

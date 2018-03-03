@@ -23,7 +23,10 @@ shinyUI(fluidPage(
        sliderInput("zoomSlider","Standard Zoom",5,
                    min = 1, max = 14, step = 1),
        submitButton("Submit"),
-       h6("Created 27.02.2018")),
+       h6("Created 27.02.2018")
+       #http://rpubs.com/alejandrobalderas/365773
+       ),
+    
     
     
     # Show a plot of the generated distribution
